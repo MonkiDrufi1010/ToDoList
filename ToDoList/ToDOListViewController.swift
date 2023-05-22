@@ -12,7 +12,9 @@ class ToDOListViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     @IBOutlet weak var addBarBtn: UIBarButtonItem!
-    var toDoArray = ["Learn Swift", "Build App", "Change the word", "Take Pice"]
+    
+//    var toDoArray = ["Learn Swift", "Build App", "Change the word", "Take Pice"]
+    var toDoItems: [ToDoItem] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,35 +22,6 @@ class ToDOListViewController: UIViewController {
         tableView.delegate = self
         
     }
-    //強制有值
-    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    //        if segue.identifier == "ShowDetail" {
-    //            let destination = segue.destination as! DetailTableViewController
-    //            let selectedIndexPath = tableView.indexPathForSelectedRow!
-    //            destination.ToDoItem = toDoArray[selectedIndexPath.row]
-    //        }
-    //
-    //    }
-    //可選寫法 改問號？
-    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    //        if segue.identifier == "ShowDetail" {
-    //            if let destination = segue.destination as? DetailTableViewController {
-    //                if let selectedIndexPath = tableView.indexPathForSelectedRow {
-    //                    destination.ToDoItem = toDoArray[selectedIndexPath.row]
-    //                }
-    //            }
-    //        }
-    //    }
-    
-    //    @IBAction func unwindFormDetail(segue: UIStoryboardSegue) {
-    //        if let souce = segue.source as? DetailTableViewController,
-    //           let selectedIndexPath = tableView.indexPathForSelectedRow {
-    //            toDoArray[selectedIndexPath.row] = souce.ToDoItem!
-    //            tableView.reloadRows(at: [selectedIndexPath], with: .automatic)
-    //        }
-    //
-    //    }
-    /* 在修改後的程式碼中，感嘆號（!）已被替換為使用 if let 陳述式進行選擇性解包。這確保在使用前將選擇性值安全地解包。source.ToDoItem 現在使用選擇性綁定指派給 toDoItem 常數。如果任何選擇性值為 nil，則不會執行 if let 區塊內的程式碼。這有助於防止因強制解包 nil 值而導致的崩潰。*/
     
     
     /*
@@ -98,17 +71,18 @@ class ToDOListViewController: UIViewController {
     @IBAction func unwindFromDetail(segue: UIStoryboardSegue) {
         if let source = segue.source as? DetailTableViewController,
            let selectedIndexPath = tableView.indexPathForSelectedRow,
-           let toDoItem = source.ToDoItem {
-            toDoArray[selectedIndexPath.row] = toDoItem
+           let toDoItem = source.toDoItem
+        {
+            toDoItems[selectedIndexPath.row] = toDoItem
             tableView.reloadRows(at: [selectedIndexPath], with: .automatic)
         }else {
             // 按加號 在textField輸入的文字,會新增在底部 .buttom
             // 這IndexPath 一定要有 印出[0, 4]
-            let newIndexPath = IndexPath(row: toDoArray.count, section: 0)
+            let newIndexPath = IndexPath(row: toDoItems.count, section: 0)
             print("new: \(newIndexPath)")
             if let source = segue.source as? DetailTableViewController,
-               let toDoItem = source.ToDoItem {
-                toDoArray.append(toDoItem)
+               let toDoItem = source.toDoItem {
+                toDoItems.append(toDoItem)
                 tableView.insertRows(at: [newIndexPath], with: .bottom)
                 //滾動到最底
                 tableView.scrollToRow(at: newIndexPath, at: .bottom, animated: true)
@@ -125,7 +99,7 @@ class ToDOListViewController: UIViewController {
         if segue.identifier == "ShowDetail",
            let destination = segue.destination as? DetailTableViewController,
            let selectedIndexPath = tableView.indexPathForSelectedRow {
-            destination.ToDoItem = toDoArray[selectedIndexPath.row]
+            destination.toDoItem = toDoItems[selectedIndexPath.row]
         } else { // 這段else 不是很懂 表示按加號跳轉頁面,但並不會顯示在textField
             if let selectedIndexPath = tableView.indexPathsForSelectedRows {
                 for indexPath in selectedIndexPath {
@@ -139,14 +113,6 @@ class ToDOListViewController: UIViewController {
     }
     
     
-    //用可选链和可选绑定的组合来简化代码，并进一步提高可读性
-    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    //        if segue.identifier == "ShowDetail",
-    //           let destination = segue.destination as? DetailTableViewController,
-    //           let selectedIndexPath = tableView.indexPathForSelectedRow {
-    //            destination.ToDoItem = toDoArray[selectedIndexPath.row]
-    //        }
-    //    }
     
     
     
@@ -168,7 +134,7 @@ class ToDOListViewController: UIViewController {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            toDoArray.remove(at: indexPath.row)
+            toDoItems.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .right)
         
 
@@ -177,9 +143,9 @@ class ToDOListViewController: UIViewController {
     }
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let itemToMove = toDoArray[sourceIndexPath.row]
-        toDoArray.remove(at: sourceIndexPath.row)
-        toDoArray.insert(itemToMove, at: destinationIndexPath.row)
+        let itemToMove = toDoItems[sourceIndexPath.row]
+        toDoItems.remove(at: sourceIndexPath.row)
+        toDoItems.insert(itemToMove, at: destinationIndexPath.row)
     }
  
     
@@ -190,14 +156,14 @@ class ToDOListViewController: UIViewController {
 
 extension ToDOListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("numberOfRowsInSection \(toDoArray.count)")
-        return toDoArray.count
+        print("numberOfRowsInSection \(toDoItems.count)")
+        return toDoItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         print("cellForRowAt \(indexPath.row)")
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cells", for: indexPath)
-        cell.textLabel?.text = toDoArray[indexPath.row]
+        cell.textLabel?.text = toDoItems[indexPath.row].name
         
         return cell
         

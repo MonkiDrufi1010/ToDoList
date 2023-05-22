@@ -7,7 +7,7 @@
 import UIKit
 
 class DetailTableViewController: UITableViewController {
-
+    
     
     @IBOutlet weak var saveBarbBtn: UIBarButtonItem!
     
@@ -15,23 +15,25 @@ class DetailTableViewController: UITableViewController {
     @IBOutlet weak var noteView: UITextView!
     @IBOutlet weak var dataPicker: UIDatePicker!
     
-    var ToDoItem: String?
+    var toDoItem: ToDoItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if ToDoItem == nil {
-            nameField.text = ""
-        }else {
-            nameField.text = ToDoItem
+        if toDoItem == nil {
+            toDoItem = ToDoItem(name: "", date: Date(), notes: "")
         }
+        nameField.text = toDoItem.name
+        dataPicker.date = toDoItem.date
+        noteView.text = toDoItem.notes
         
-
-    
+        
+        
+        
     }
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        ToDoItem = nameField.text
+        toDoItem = ToDoItem(name: nameField.text ?? "not String", date: dataPicker.date, notes: noteView.text)
     }
     
     @IBAction func cencelBarBtn(_ sender: UIBarButtonItem) {
@@ -41,14 +43,14 @@ class DetailTableViewController: UITableViewController {
             dismiss(animated: true, completion: nil)
         }else {
             //navig 推回上一頁 要用 pop
-//            dismiss(animated: true, completion: nil)
+            //            dismiss(animated: true, completion: nil)
             navigationController?.popViewController(animated: true)
         }
         
     }
- 
-
-   
-
+    
+    
+    
+    
     
 }
