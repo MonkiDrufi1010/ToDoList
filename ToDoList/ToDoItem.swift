@@ -1,14 +1,19 @@
 //
 //  ToDoItem.swift
 //  ToDoList
-//
-//  
-//
+
+
+
+
 
 import Foundation
+//import UIKit
 
-struct ToDoItem {
+struct ToDoItem: Codable {
     var name: String
     var date: Date
-    var  notes: String
+    var notes: String
+//    var image: UIImage
+    
 }
+

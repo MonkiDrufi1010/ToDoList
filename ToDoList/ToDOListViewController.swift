@@ -21,7 +21,58 @@ class ToDOListViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         
+        loadData()
+        
+        
+        
     }
+    
+    
+    func loadData() {
+        let directoryURL = FileManager.default.urls(for: .documentDirectory,
+                                                    in: .userDomainMask).first!
+        let documentURL = directoryURL.appendingPathComponent("todos").appendingPathExtension("json")
+        
+        guard let data = try? Data(contentsOf: documentURL) else {return}
+        
+        let jsonDecoder = JSONDecoder()
+        do {
+            toDoItems = try jsonDecoder.decode(Array<ToDoItem>.self, from: data)
+            tableView.reloadData()
+        } catch {
+            print("Error: Could not load data: \(error.localizedDescription)")
+        }
+        
+    }
+ 
+    
+    
+    func saveData() {
+        let directoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let documentURL = directoryURL.appendingPathComponent("todos").appendingPathExtension("json")
+        //  可以印出 儲存的路徑
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: documentURL.path) {
+            print("todos.json 檔案已成功儲存。")
+            print("MyPath: \(documentURL.path)")
+        // -------------------------
+        } else {
+            print("無法找到 todos.json 檔案。")
+        }
+        
+        
+        let jsonEncoder = JSONEncoder()
+        let data = try? jsonEncoder.encode(toDoItems)
+        do {
+            try data?.write(to: documentURL, options: .noFileProtection)
+            
+        }catch {
+            print("Error: Could not save data \(error.localizedDescription)")
+        }
+        
+        
+    }
+    
     
     
     /*
@@ -89,6 +140,8 @@ class ToDOListViewController: UIViewController {
             }
         }
         
+        saveData()
+        
     }
     
     
@@ -141,8 +194,13 @@ class ToDOListViewController: UIViewController {
 //
 //        }
 //    }
+    // 刪除  cell 或這 左滑 可以刪除  deleteRow 這函數
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        
+        if editingStyle == .delete {
+            toDoItems.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            saveData()
+        }
     }
    
     
